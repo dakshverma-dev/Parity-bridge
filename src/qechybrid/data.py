@@ -4,4 +4,12 @@ from __future__ import annotations
 import stim
 
 def surface_circuit(d: int, p: float, rounds: int | None = None) -> stim.Circuit:
-    return stim.Circuit.generated("surface_code:rotated_memory_z", distance=d, rounds=rounds or d)
+    return stim.Circuit.generated(
+        "surface_code:rotated_memory_z",
+        distance=d,
+        rounds=rounds or d,
+        after_clifford_depolarization=p,
+        after_reset_flip_probability=p,
+        before_measure_flip_probability=p,
+        before_round_data_depolarization=p,
+    )
