@@ -8,3 +8,9 @@ class MatchingDecoder:
     def __init__(self, circuit):
         dem = circuit.detector_error_model(decompose_errors=True)
         self.m = pymatching.Matching.from_detector_error_model(dem)
+
+    def decode_batch(self, dets: np.ndarray) -> np.ndarray:
+        return np.asarray(self.m.decode_batch(dets.astype(np.uint8)), dtype=np.uint8)
+
+    def decode_one(self, det: np.ndarray) -> np.ndarray:
+        return np.asarray(self.m.decode(det.astype(np.uint8)), dtype=np.uint8)
