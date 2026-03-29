@@ -10,6 +10,8 @@ class MatchingDecoder:
         self.m = pymatching.Matching.from_detector_error_model(dem)
 
     def decode_batch(self, dets: np.ndarray) -> np.ndarray:
+        if len(dets) == 0:
+            return np.zeros((0, 1), np.uint8)
         return np.asarray(self.m.decode_batch(dets.astype(np.uint8)), dtype=np.uint8)
 
     def decode_one(self, det: np.ndarray) -> np.ndarray:
