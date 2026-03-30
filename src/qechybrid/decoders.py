@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 import pymatching
+from .local_predecoder import LocalPreDecoder
 
 class MatchingDecoder:
     def __init__(self, circuit):
@@ -12,11 +13,7 @@ class MatchingDecoder:
     def decode_batch(self, dets: np.ndarray) -> np.ndarray:
         if len(dets) == 0:
             return np.zeros((0, 1), np.uint8)
-        if not np.any(dets):
-            return np.zeros((len(dets), 1), np.uint8)
         return np.asarray(self.m.decode_batch(dets.astype(np.uint8)), dtype=np.uint8)
 
     def decode_one(self, det: np.ndarray) -> np.ndarray:
-        if not np.any(det):
-            return np.zeros((1,), np.uint8)
         return np.asarray(self.m.decode(det.astype(np.uint8)), dtype=np.uint8)
