@@ -23,12 +23,16 @@ class BBCode:
     n: int
     k: int
 
-def bb_72_12_6() -> BBCode:
-    x = np.kron(_shift(6, 1), np.eye(6, dtype=np.int64))
-    y = np.kron(np.eye(6, dtype=np.int64), _shift(6, 1))
-    a_terms = [("x", 3), ("y", 1), ("y", 2)]
-    b_terms = [("y", 3), ("x", 1), ("x", 2)]
+def bb_code(l: int, m: int, a_terms, b_terms, name: str) -> BBCode:
+    x = np.kron(_shift(l, 1), np.eye(m, dtype=np.int64))
+    y = np.kron(np.eye(l, dtype=np.int64), _shift(m, 1))
     A, B = _poly(a_terms, x, y), _poly(b_terms, x, y)
     hx = np.hstack([A, B]).astype(np.uint8)
     hz = np.hstack([B.T, A.T]).astype(np.uint8)
-    return BBCode("bb72", hx, hz, 72, 12)
+    return BBCode(name, hx, hz, 2 * l * m, 12)
+
+def bb_72_12_6() -> BBCode:
+    return bb_code(6, 6, [("x", 3), ("y", 1), ("y", 2)], [("y", 3), ("x", 1), ("x", 2)], "bb72")
+
+def bb_144_12_12() -> BBCode:
+    return bb_code(12, 6, [("x", 3), ("y", 1), ("y", 2)], [("y", 3), ("x", 1), ("x", 2)], "bb144")
