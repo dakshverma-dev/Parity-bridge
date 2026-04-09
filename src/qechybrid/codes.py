@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 import numpy as np
+from .gf2 import rank, reduce_by_basis, rref
 
 def _shift(n: int, k: int) -> np.ndarray:
     return np.roll(np.eye(n, dtype=np.int64), k, axis=1)
@@ -22,6 +23,17 @@ class BBCode:
     hz: np.ndarray
     n: int
     k: int
+    _basis: tuple = field(repr=False, default=None)
+
+    def sample(self, shots: int, p: float, seed: int = 0):
+        rng = np.random.default_rng(seed)
+        e = (rng.random((shots, self.n)) < p).astype(np.uint8)
+        syn = ((e.astype(np.int32) @ self.hz.T.astype(np.int32)) % 2).astype(np.uint8)
+        return e, syn
+
+    @property
+    def priors(self):
+        return None
 
 def bb_code(l: int, m: int, a_terms, b_terms, name: str) -> BBCode:
     x = np.kron(_shift(l, 1), np.eye(m, dtype=np.int64))
