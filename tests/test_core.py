@@ -11,6 +11,12 @@ def test_bb_codes_have_12_logicals():
     c144 = codes.bb_144_12_12()
     assert (c144.hx @ c144.hz.T % 2).sum() == 0
 
+def test_logical_failure_logic():
+    code = codes.bb_72_12_6()
+    err, syn = code.sample(shots=10, p=0.02, seed=1)
+    fail = code.logical_failure(err, err)
+    assert not fail.any()
+
 def test_dem_matrices_consistent():
     circ = data.surface_circuit(d=3, p=0.005)
     dm = data.dem_matrices(circ)
