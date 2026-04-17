@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import numpy as np
 import pymatching
-from .local_predecoder import LocalPreDecoder
+import scipy.sparse as sp
+from ldpc import BpOsdDecoder
 
 class MatchingDecoder:
     def __init__(self, circuit):
@@ -17,3 +18,24 @@ class MatchingDecoder:
 
     def decode_one(self, det: np.ndarray) -> np.ndarray:
         return np.asarray(self.m.decode(det.astype(np.uint8)), dtype=np.uint8)
+
+class CpuBpOsd:
+    def __init__(self, H, priors, max_iter: int = 50, osd_order: int = 7, ms_scaling: float = 0.8, osd_method: str = "osd_cs"):
+        self.n = H.shape[1]
+        self.dec = BpOsdDecoder(
+            sp.csr_matrix(H, dtype=np.uint8),
+            channel_probs=np.asarray(priors, dtype=float),
+            max_iter=max_iter,
+            bp_method="minimum_sum",
+            ms_scaling_factor=ms_scaling,
+            osd_method=osd_method,
+            osd_order=osd_order,
+        )
+
+    def decode_one(self, syn: np.ndarray) -> np.ndarray:
+        return np.asarray(self.dec.decode(syn.astype(np.uint8)), dtype=np.uint8)
+
+    def decode_batch(self, S: np.ndarray) -> np.ndarray:
+        if len(S) == 0:
+            return np.zeros((0, self.n), np.uint8)
+        return np.stack([self.decode_one(s) for s in S])
