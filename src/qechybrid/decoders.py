@@ -6,6 +6,8 @@ import pymatching
 import scipy.sparse as sp
 from ldpc import BpOsdDecoder
 
+from .bp_gpu import BatchedMinSumBP
+
 class MatchingDecoder:
     def __init__(self, circuit):
         dem = circuit.detector_error_model(decompose_errors=True)
@@ -39,3 +41,21 @@ class CpuBpOsd:
         if len(S) == 0:
             return np.zeros((0, self.n), np.uint8)
         return np.stack([self.decode_one(s) for s in S])
+
+class HybridBpOsd:
+    def __init__(self, H, priors, device="cpu", max_iter=50, osd_order=7, alpha=0.8, osd_backend=None):
+        self.bp = BatchedMinSumBP(H, priors, max_iter=max_iter, alpha=alpha, device=device)
+        self.osd = CpuBpOsd(H, priors, max_iter=max_iter, osd_order=osd_order, ms_scaling=alpha)
+
+    def decode_batch(self, S: np.ndarray) -> np.ndarray:
+        if len(S) == 0:
+            return np.zeros((0, self.bp.n), dtype=np.uint8)
+        import torch
+        St = torch.as_tensor(S, device=self.bp.device)
+        est, conv = self.bp.decode(St)
+        est_np = est.cpu().numpy().astype(np.uint8)
+        conv_np = conv.cpu().numpy()
+        unconv_idx = np.where(~conv_np)[0]
+        if len(unconv_idx) > 0:
+            est_np[unconv_idx] = self.osd.decode_batch(S[unconv_idx])
+        return est_np
