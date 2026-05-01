@@ -11,3 +11,8 @@ PROFILES = {
         qldpc=dict(codes=["bb72", "bb144"], ps=[0.02, 0.04, 0.06], shots=20000, lat=1000),
     ),
 }
+
+def run_profile(name="quick", only=None):
+    prof = PROFILES[name]
+    families = [only] if only else ["surface", "qldpc"]
+    return {f: prof[f] for f in families if f in prof}
