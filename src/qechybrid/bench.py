@@ -1,5 +1,6 @@
 """Benchmark harness: logical error rate, throughput and latency percentiles."""
 from __future__ import annotations
+import torch
 
 PROFILES = {
     "quick": dict(
@@ -12,7 +13,7 @@ PROFILES = {
     ),
 }
 
-def run_profile(name="quick", only=None):
-    prof = PROFILES[name]
-    families = [only] if only else ["surface", "qldpc"]
-    return {f: prof[f] for f in families if f in prof}
+def resolve_device(device: str) -> str:
+    if device == "auto":
+        return "cuda" if torch.cuda.is_available() else "cpu"
+    return device
