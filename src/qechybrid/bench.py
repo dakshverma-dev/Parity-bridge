@@ -17,3 +17,9 @@ def resolve_device(device: str) -> str:
     if device == "auto":
         return "cuda" if torch.cuda.is_available() else "cpu"
     return device
+
+def warmup_decoder(decoder, sample_data):
+    try:
+        decoder.decode_batch(sample_data[:min(len(sample_data), 10)])
+    except Exception:
+        pass
