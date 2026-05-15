@@ -18,8 +18,8 @@ def resolve_device(device: str) -> str:
         return "cuda" if torch.cuda.is_available() else "cpu"
     return device
 
-def warmup_decoder(decoder, sample_data):
-    try:
-        decoder.decode_batch(sample_data[:min(len(sample_data), 10)])
-    except Exception:
-        pass
+def ordered_decoders(decoders_dict, rep_idx: int):
+    items = list(decoders_dict.items())
+    if rep_idx % 2 == 1:
+        items = list(reversed(items))
+    return items
