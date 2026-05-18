@@ -2,13 +2,12 @@
 from __future__ import annotations
 import numpy as np
 import time
-from .timing import percentiles_us
 
-def _latency(decode_fn, single_shots, n_samples=100) -> dict:
+def _batch_latency_ms(decode_fn, data, batch_size=256, reps=10) -> float:
+    chunk = data[:batch_size]
     times = []
-    subset = single_shots[:n_samples]
-    for s in subset:
+    for _ in range(reps):
         t0 = time.perf_counter()
-        decode_fn(s[None, :])
+        decode_fn(chunk)
         times.append(time.perf_counter() - t0)
-    return percentiles_us(times)
+    return float(np.median(times) * 1e3)
