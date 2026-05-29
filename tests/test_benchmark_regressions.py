@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 import torch
-from qechybrid import data, local_predecoder
+from qechybrid import data, local_predecoder, timing
 
 def test_local_correction_residual_and_logical_flip_invariant():
     circ = data.surface_circuit(d=3, p=0.005)
@@ -13,9 +13,11 @@ def test_local_correction_residual_and_logical_flip_invariant():
 def test_cpu_pipeline_never_synchronizes_cuda(monkeypatch):
     called = []
     monkeypatch.setattr(torch.cuda, "synchronize", lambda *a, **kw: called.append(True))
-    circ = data.surface_circuit(d=3, p=0.005)
-    dets, _ = data.sample(circ, shots=10, seed=1)
+    timing.sync("cpu")
     assert len(called) == 0
 
-def test_surface_cpu_baselines_use_cpu_latency_timers():
-    pass
+def test_cuda_timer_synchronizes_the_selected_device(monkeypatch):
+    called = []
+    monkeypatch.setattr(torch.cuda, "synchronize", lambda dev: called.append(dev))
+    timing.sync("cuda:0")
+    assert called == ["cuda:0"]

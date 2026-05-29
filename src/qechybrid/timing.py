@@ -1,20 +1,33 @@
+from __future__ import annotations
+
+import time
+
 import numpy as np
 
-def percentiles_us(times_s) -> dict[str, float]:
-    arr = np.asarray(times_s, dtype=np.float64) * 1e6
-    if len(arr) == 0:
-        return {"p50": 0.0, "p95": 0.0, "p99": 0.0}
-    return {
-        "p50": float(np.percentile(arr, 50)),
-        "p95": float(np.percentile(arr, 95)),
-        "p99": float(np.percentile(arr, 99)),
-    }
+
+def sync(device: str) -> None:
+    if str(device).startswith("cuda"):
+        import torch
+
+        torch.cuda.synchronize(device)
+
+
+def now(device: str = "cpu") -> float:
+    sync(device)
+    return time.perf_counter()
+
+
+def percentiles_us(samples_s) -> dict:
+    a = np.asarray(samples_s) * 1e6
+    return {"p50": float(np.percentile(a, 50)), "p95": float(np.percentile(a, 95)), "p99": float(np.percentile(a, 99))}
+
 
 def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float, float]:
+    """Point estimate and Wilson score interval for a binomial proportion."""
     if n == 0:
         return 0.0, 0.0, 0.0
-    p = k / n
-    denom = 1 + z**2 / n
-    center = (p + z**2 / (2 * n)) / denom
-    half = z * np.sqrt(p * (1 - p) / n + z**2 / (4 * n**2)) / denom
-    return float(p), float(max(0.0, center - half)), float(min(1.0, center + half))
+    ph = k / n
+    den = 1 + z * z / n
+    c = (ph + z * z / (2 * n)) / den
+    h = z * np.sqrt(ph * (1 - ph) / n + z * z / (4 * n * n)) / den
+    return ph, max(0.0, c - h), min(1.0, c + h)
