@@ -1,16 +1,20 @@
+"""CLI: python scripts/run_benchmarks.py --profile quick --device auto --tag local-cpu"""
 import argparse
-import sys
-from pathlib import Path
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
-from qechybrid import bench
 
-def main():
-    p = argparse.ArgumentParser()
-    p.add_argument("--only", choices=["surface", "qldpc"], default=None)
-    p.add_argument("--profile", default="quick")
-    args = p.parse_args()
-    print(f"Running profile={args.profile}, only={args.only}")
+from qechybrid.bench import run_profile
 
-if __name__ == "__main__":
-    main()
+ap = argparse.ArgumentParser()
+ap.add_argument("--profile", choices=["quick", "full"], default="quick")
+ap.add_argument("--device", default="auto", help="auto | cpu | cuda")
+ap.add_argument("--tag", default="local-cpu", help="results/<tag>/ output folder")
+ap.add_argument("--out-root", default="results", help="parent directory for raw benchmark output")
+ap.add_argument("--capture-evidence", action="store_true", help="save ordered shot identities and failure flags")
+ap.add_argument("--only", choices=["surface", "qldpc"], default=None)
+ap.add_argument("--reps", type=int, default=5, help="throughput repetitions (minimum 3; default 5)")
+ap.add_argument("--surface-modes", nargs="+", choices=["none", "zero", "local", "nn"], default=None,
+                help="surface modes to evaluate; CPU baseline is always included")
+a = ap.parse_args()
+if a.reps < 3:
+    ap.error("--reps must be at least 3")
+run_profile(a.profile, a.device, a.tag, out_root=a.out_root, which=(a.only,) if a.only else ("surface", "qldpc"),
+            reps=a.reps, surface_modes=a.surface_modes, capture_evidence=a.capture_evidence)
