@@ -21,7 +21,7 @@ dev = ["pytest", "matplotlib", "nbformat"]
 where = ["src"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "release_app/tests"]
 markers = [
   "slow: scientific error-count regression or broad quality smoke check",
   "quality_smoke: broad quality bands, not a statistical regression guarantee",
