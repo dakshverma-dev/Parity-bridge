@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 
 app = FastAPI(title="ParityBridge Release Viewer")
 
@@ -14,3 +14,7 @@ def health():
 @app.get("/api/reports/latest")
 def latest():
     return {"schemaVersion": "1.0.0"}
+
+@app.get("/api/reports/latest/raw", response_class=PlainTextResponse)
+def latest_raw():
+    return "code,distance,p,decoder,shots\n"
