@@ -1,7 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, PlainTextResponse
 
 app = FastAPI(title="ParityBridge Release Viewer")
+
+def _unavailable(reason: str):
+    raise HTTPException(status_code=503, detail=reason)
 
 @app.get("/", response_class=HTMLResponse)
 def index():
