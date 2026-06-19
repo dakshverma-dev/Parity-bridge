@@ -8,3 +8,5 @@ SOURCE_KINDS = ("measured", "fixture", "historical")
 def _manifest_checks(manifest: dict):
     if manifest.get("schema_version") != BUNDLE_SCHEMA_VERSION:
         raise ValueError("Invalid schema version")
+    if "harness_commit" not in manifest or "command" not in manifest:
+        raise ValueError("Manifest missing harness invocation provenance")
