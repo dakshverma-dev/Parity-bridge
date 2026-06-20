@@ -5,8 +5,9 @@ BUNDLE_SCHEMA_VERSION = "1.0.0"
 FAMILIES = ("surface", "qldpc")
 SOURCE_KINDS = ("measured", "fixture", "historical")
 
-def _manifest_checks(manifest: dict):
-    if manifest.get("schema_version") != BUNDLE_SCHEMA_VERSION:
-        raise ValueError("Invalid schema version")
-    if "harness_commit" not in manifest or "command" not in manifest:
-        raise ValueError("Manifest missing harness invocation provenance")
+def _metadata(meta: dict) -> dict:
+    return {
+        "cpu_model": meta.get("cpu_model", "unknown"),
+        "torch_version": meta.get("torch_version", "unknown"),
+        "stim_version": meta.get("stim_version", "unknown"),
+    }
