@@ -5,9 +5,9 @@ BUNDLE_SCHEMA_VERSION = "1.0.0"
 FAMILIES = ("surface", "qldpc")
 SOURCE_KINDS = ("measured", "fixture", "historical")
 
-def _metadata(meta: dict) -> dict:
+def _config(cfg: dict) -> dict:
     return {
-        "cpu_model": meta.get("cpu_model", "unknown"),
-        "torch_version": meta.get("torch_version", "unknown"),
-        "stim_version": meta.get("stim_version", "unknown"),
+        "seed": cfg.get("seed", 0),
+        "distances": cfg.get("distances", []),
+        "noise_rates": cfg.get("noise_rates", []),
     }
