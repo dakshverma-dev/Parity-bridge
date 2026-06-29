@@ -5,9 +5,6 @@ BUNDLE_SCHEMA_VERSION = "1.0.0"
 FAMILIES = ("surface", "qldpc")
 SOURCE_KINDS = ("measured", "fixture", "historical")
 
-def _config(cfg: dict) -> dict:
-    return {
-        "seed": cfg.get("seed", 0),
-        "distances": cfg.get("distances", []),
-        "noise_rates": cfg.get("noise_rates", []),
-    }
+def validate_source(source: str):
+    if source not in SOURCE_KINDS:
+        raise ValueError(f"Unknown source kind {source}")
