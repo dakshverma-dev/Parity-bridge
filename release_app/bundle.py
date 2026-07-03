@@ -1,7 +1,6 @@
 """Unified benchmark bundles for surface and qLDPC runs."""
 from __future__ import annotations
-import csv
 
-def _rows(csv_path):
-    with open(csv_path, newline="", encoding="utf-8") as f:
-        return list(csv.DictReader(f))
+def _check_grid(row: dict, grid: dict):
+    if "p" in row and row["p"] not in grid.get("noise_rates", [row["p"]]):
+        raise ValueError("row outside configured parameter grid")
