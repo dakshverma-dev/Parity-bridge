@@ -1,6 +1,10 @@
 """Unified benchmark bundles for surface and qLDPC runs."""
 from __future__ import annotations
 
-def _check_grid(row: dict, grid: dict):
-    if "p" in row and row["p"] not in grid.get("noise_rates", [row["p"]]):
-        raise ValueError("row outside configured parameter grid")
+def _check_duplicates(rows):
+    seen = set()
+    for r in rows:
+        key = (r.get("distance") or r.get("code"), r.get("p"), r.get("decoder"))
+        if key in seen:
+            raise ValueError(f"Duplicate row for {key}")
+        seen.add(key)
