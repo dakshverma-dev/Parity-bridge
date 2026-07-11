@@ -1,10 +1,10 @@
 import argparse
-import sys
-from pathlib import Path
-ROOT = Path(__file__).resolve().parents[1]
 
 def main():
-    print("Build release report smoke run")
+    p = argparse.ArgumentParser()
+    sub = p.add_subparsers(dest="action")
+    sub.add_parser("create")
+    print("Bundle CLI create command registered")
 
 if __name__ == "__main__":
     main()
