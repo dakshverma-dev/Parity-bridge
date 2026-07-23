@@ -1,7 +1,6 @@
 """Unified benchmark bundles for surface and qLDPC runs."""
 from __future__ import annotations
-import shutil
-from pathlib import Path
+import hashlib
 
-def copy_csv_exact(src: Path, dst: Path):
-    shutil.copyfile(src, dst)
+def _digest(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
