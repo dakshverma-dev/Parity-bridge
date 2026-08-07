@@ -1,7 +1,4 @@
 import pytest
 
-def test_unsafe_run_names_are_rejected():
-    pass
-
-def test_manifest_cannot_point_outside_bundle():
+def test_cancelled_publish_and_parse_error_leave_no_new_run():
     pass
