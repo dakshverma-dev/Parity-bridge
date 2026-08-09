@@ -1,4 +1,4 @@
 import pytest
 
-def test_cancelled_publish_and_parse_error_leave_no_new_run():
+def test_published_run_cannot_be_replaced():
     pass
