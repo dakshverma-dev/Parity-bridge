@@ -4,3 +4,6 @@ import hashlib
 
 def _shot_digest_surface(dets, obs) -> str:
     return hashlib.md5(dets.tobytes() + obs.tobytes()).hexdigest()
+
+def _shot_digest_qldpc(errors, syn) -> str:
+    return hashlib.md5(errors.tobytes() + syn.tobytes()).hexdigest()
