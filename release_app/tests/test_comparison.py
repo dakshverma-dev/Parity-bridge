@@ -1,4 +1,4 @@
 import pytest
 
-def test_selected_decoders_must_cover_both_runs():
+def test_measured_slowdown_and_real_paired_disagreements():
     pass
