@@ -1,5 +1,5 @@
 """Saved-run comparison engine."""
 from __future__ import annotations
 
-def _speed_factor(left_tp: float, right_tp: float) -> float:
-    return float(right_tp / left_tp) if left_tp > 0 else 0.0
+def _latency_speed_factor(left_lat: float, right_lat: float) -> float:
+    return float(left_lat / right_lat) if right_lat > 0 else 0.0
