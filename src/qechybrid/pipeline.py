@@ -3,16 +3,29 @@ from __future__ import annotations
 
 import numpy as np
 import torch
+
 from .timing import now
 
+
 class HybridDecoder:
+    """Modes
+    none  : plain global decoding (baseline)
+    zero  : trivial shortcut (empty syndrome => no logical flip)
+    nn    : learned MLP gate answers confident shots, rest -> global decoder
+    local : GPU local pre-decoder clears easy clusters; empty residual => done,
+            otherwise the *residual* syndrome (sparser) goes to the global decoder
+    """
+
     def __init__(self, matcher, gate=None, mode: str = "nn", device: str = "cpu", chunk: int = 65536, local=None):
         self.matcher, self.gate, self.mode, self.device, self.chunk = matcher, gate, mode, device, chunk
+        # CPU-only modes never touch CUDA, including their internal timers.
         if mode in ("none", "zero"):
             self.device = "cpu"
         self.local = local
+        self.stats: dict = {}
 
     def _front(self, dets):
+        """Returns (accepted mask, prediction for all rows, residual syndromes for the rest)."""
         B = len(dets)
         if self.mode == "none":
             return np.zeros(B, bool), np.zeros((B, 1), np.uint8), dets
@@ -27,17 +40,38 @@ class HybridDecoder:
         return acc, (z > 0).to(torch.uint8).cpu().numpy(), dets
 
     def decode_batch(self, dets: np.ndarray) -> np.ndarray:
-        preds = []
+        preds, accepted, residuals = [], 0, []
+        t_gate = t_match = 0.0
+        t0 = now(self.device)
         for i in range(0, len(dets), self.chunk):
             d = dets[i : i + self.chunk]
+            a = now(self.device)
             acc, p, res = self._front(d)
+            b = now(self.device)
             out = p.copy()
             rest = ~acc
             if rest.any():
                 m = self.matcher.decode_batch(res[rest])
                 out[rest] = (p[rest] ^ m) if self.mode == "local" else m
+            c = now(self.device)
+            t_gate += b - a
+            t_match += c - b
+            accepted += int(acc.sum())
+            residuals.append(res)
             preds.append(out)
-        return np.concatenate(preds) if preds else np.zeros((0, 1), np.uint8)
+        result = np.concatenate(preds) if preds else np.zeros((0, 1), np.uint8)
+        t_total = now(self.device) - t0
+        # bookkeeping below is deliberately outside the timed region
+        w_in = float(sum(int(dets[i : i + self.chunk].sum()) for i in range(0, len(dets), self.chunk)))
+        w_out = float(sum(int(r.sum()) for r in residuals))
+        self.stats = {
+            "accept_rate": accepted / max(1, len(dets)),
+            "t_total": t_total,
+            "t_gate": t_gate,
+            "t_match": t_match,
+            "syndrome_weight_kept": w_out / max(1.0, w_in),
+        }
+        return result
 
     def decode_one(self, det: np.ndarray) -> np.ndarray:
         acc, p, res = self._front(det[None])
