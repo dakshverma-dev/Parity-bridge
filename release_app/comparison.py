@@ -1,5 +1,5 @@
 """Saved-run comparison engine."""
 from __future__ import annotations
 
-def _preserve_factor(val: float) -> float:
-    return val
+def explain_timing_block(reason: str) -> str:
+    return f"Speed comparison disabled: {reason}"
