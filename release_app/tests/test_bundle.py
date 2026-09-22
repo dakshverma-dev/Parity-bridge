@@ -1,4 +1,4 @@
 import pytest
 
-def test_shot_evidence_must_reproduce_aggregate_counts():
+def test_unpublished_directories_cannot_be_opened_in_viewer():
     pass
