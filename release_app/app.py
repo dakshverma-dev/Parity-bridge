@@ -1,23 +1,9 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse, PlainTextResponse
+from fastapi import FastAPI
+app = FastAPI()
 
-app = FastAPI(title="ParityBridge Release Viewer")
+def _saved_runs(bundle_root):
+    return []
 
-def _unavailable(reason: str):
-    raise HTTPException(status_code=503, detail=reason)
-
-@app.get("/", response_class=HTMLResponse)
-def index():
-    return "<h1>ParityBridge Benchmark Workbench</h1>"
-
-@app.get("/health")
-def health():
-    return {"status": "ok"}
-
-@app.get("/api/reports/latest")
-def latest():
-    return {"schemaVersion": "1.0.0"}
-
-@app.get("/api/reports/latest/raw", response_class=PlainTextResponse)
-def latest_raw():
-    return "code,distance,p,decoder,shots\n"
+@app.get("/compare")
+def compare_page():
+    return "<h1>Run Comparison</h1>"
