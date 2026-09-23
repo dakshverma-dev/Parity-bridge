@@ -1,4 +1,4 @@
 import pytest
 
-def test_measured_slowdown_and_real_paired_disagreements():
+def test_unavailable_explanation_and_traversal():
     pass
