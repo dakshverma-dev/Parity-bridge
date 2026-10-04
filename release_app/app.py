@@ -1,5 +1,7 @@
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 app = FastAPI()
 
-def _perf_row(tp, p50):
-    return f"<td>{tp:.1f} shots/s</td><td>p50: {p50:.1f} us</td>"
+@app.get("/compare/json")
+def compare_json():
+    return JSONResponse({})
