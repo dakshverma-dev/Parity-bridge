@@ -1,7 +1,4 @@
-from fastapi import FastAPI
-from fastapi.responses import PlainTextResponse
-app = FastAPI()
+import html
 
-@app.get("/compare/md", response_class=PlainTextResponse)
-def compare_md():
-    return "# Run Comparison\n"
+def escape_label(lbl: str) -> str:
+    return html.escape(lbl)
