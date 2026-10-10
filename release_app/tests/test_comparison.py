@@ -1,4 +1,4 @@
 import pytest
 
-def test_unavailable_explanation_and_traversal():
+def test_comparison_routes_are_get():
     pass
