@@ -1,10 +1,6 @@
 import argparse
 
-def main():
-    p = argparse.ArgumentParser()
-    sub = p.add_subparsers(dest="action")
-    demo = sub.add_parser("demo")
-    print("Demo command added")
-
-if __name__ == "__main__":
-    main()
+def run_demo():
+    for f in ("surface", "qldpc"):
+        for side in ("a", "b"):
+            print(f"Generate run {f}-{side}")
