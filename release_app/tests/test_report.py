@@ -139,6 +139,23 @@ def client(monkeypatch, tmp_path):
     return TestClient(app)
 
 
+def test_routes_with_valid_bundle(client, tmp_path):
+    r = make_report()
+    write_bundle(tmp_path, r)
+    h = client.get("/health")
+    assert h.status_code == 200
+    assert h.json() == {"status": "ok", "commitSha": HARNESS_SHA, "reportId": r["reportId"],
+                        "reportSchemaVersion": 1}
+    assert client.get("/api/reports/latest").json() == r
+    raw = client.get("/api/reports/latest/raw")
+    assert raw.status_code == 200 and raw.content == (SMOKE / "surface.csv").read_bytes()
+    page = client.get("/")
+    assert page.status_code == 200
+    for text in (HARNESS_SHA, "FIXTURE", "33 passed, 0 failed, 4 skipped", "Measurement conditions",
+                 "median-paired-v2", "/api/reports/latest/raw"):
+        assert text in page.text
+
+
 def test_raw_route_takes_no_path_argument(client, tmp_path):
     write_bundle(tmp_path, make_report())
     a = client.get("/api/reports/latest/raw?path=../release_build.json")
